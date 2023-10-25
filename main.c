@@ -1,3 +1,4 @@
+#include "SDL/include/SDL2/SDL_stdinc.h"
 #include "life.h"
 
 void voidRect(SDL_Renderer *renderer, int x, int y)
@@ -166,9 +167,40 @@ void drawGrid(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture,
     }
 }
 
+SDL_Texture	*fonting(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect Fontrect, char *str, int DELAY)
+{
+	SDL_itoa(DELAY, str, 10);
+	SDL_Color textColor = {255, 0, 0, 0};
+	SDL_Surface *surface = TTF_RenderText_Solid(font, str, textColor);
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+	Fontrect.w = surface->w;
+	Fontrect.h = surface->h;
+	SDL_FreeSurface(surface);
+	return(texture);
+	//SDL_RenderPresent(renderer);
+}
+
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
+	if (TTF_Init() < 0)
+		exit(1);
+	int tmp = 300;
+	int DELAY = 300;
+	char str[4];
+	SDL_itoa(DELAY, str, 10);
+    SDL_Window* window = SDL_CreateWindow("Grid Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	TTF_Font *font = TTF_OpenFont("JetBrainsMono-Bold.ttf", 24);
+	SDL_Color textColor = {255, 0, 0, 0};
 
+	SDL_Rect Fontrect;
+	Fontrect.x = 700;
+	Fontrect.y = 30;
+	Fontrect.w = 100;
+	Fontrect.h = 30;
+
+	if (!font)
+		exit(1);
     (void)argc;
     (void)argv;
 	s_cell **cell = malloc(sizeof(s_cell*) * NUM_CELLS_HORIZONTAL);
@@ -202,17 +234,12 @@ int main(int argc, char* argv[]) {
 		i++;
 	}
 
-    SDL_Window* window = SDL_CreateWindow("Grid Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
 	SDL_Texture* bufferTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
 	SDL_Texture* bufferTexture2 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
     int quit = 0;
     SDL_Event e;
 	int x = 0;
 	int y = 0;
-	int tmp = 300;
-	int DELAY = 300;
 	int w = CELLWIDTH;
 	int h = CELLHEIGHT;
 	static int x_rect;
@@ -220,7 +247,8 @@ int main(int argc, char* argv[]) {
 	int buttons = 0;
 	int button = 0;
 	int isPaused = 0;
-	Uint32 lastTime = 0, currentTime;
+	Uint32 	startTime = 0;
+	Uint32	displayTime = 3000000;
 	mousePos(&x, &y);
  	x =0;
 	while(x < NUM_CELLS_HORIZONTAL)
@@ -256,13 +284,14 @@ int main(int argc, char* argv[]) {
             if (e.type == SDL_QUIT) 
                 quit = 1;
 			if (e.type == SDL_MOUSEWHEEL)
-			{
+			{	
 				if (e.wheel.y < 0)
 				{
 					if (DELAY >= 1500)
 						break;
 					else
 						DELAY += 10;
+					startTime = SDL_GetTicks();
 					tmp = DELAY;
 				}
 				else if (e.wheel.y > 0)
@@ -271,6 +300,7 @@ int main(int argc, char* argv[]) {
 						break;
 					else
 						DELAY -= 10;
+					startTime = SDL_GetTicks();
 					tmp = DELAY;
 				}
 			}
@@ -304,29 +334,33 @@ int main(int argc, char* argv[]) {
 				}
 			}
         }
-		//if (buttons & SDL_BUTTON(SDL_BUTTON_LEFT) && currentTime - lastTime >= 100)
 		if ( buttons == 1 )
 		{
-			tmp = DELAY;
-			DELAY = 10;
+			DELAY = 0;
 			mousePos(&x, &y);
 			colorClick(renderer, x, y, w, h, cell);
 		//	printf("x = %d, y = %d\n", cell[x/w][y/h].x, cell[x/w][y/h].y);
 		}
-		//if (buttons & SDL_BUTTON(SDL_BUTTON_RIGHT) && currentTime - lastTime >= 100)
 		if ( button == 1 )
 		{
-			tmp = DELAY;
-			DELAY = 10;
+			DELAY = 0;
 			mousePos(&x, &y);
 			nocolorClick(renderer, x, y, w, h, cell);
 		//	printf("x = %d, y = %d\n", cell[x/w][y/h].x, cell[x/w][y/h].y);
 		}
 		if (!buttons && button == 0 && isPaused == 0)
 		{
+			DELAY = tmp;
 			living(renderer, cell, bufferTexture, bufferTexture2);
 		}
-		DELAY = tmp;
+		if (DELAY!=0)
+		{
+			printf("DELAY = %d\n", DELAY);
+			SDL_Texture *texture = fonting(renderer, font, Fontrect, str, DELAY); 
+			SDL_RenderCopy(renderer, texture, NULL, &Fontrect);
+			SDL_RenderPresent(renderer);
+			SDL_DestroyTexture(texture);
+		}
 		SDL_RenderPresent(renderer);
 		SDL_Delay(DELAY);
 	}
@@ -339,10 +373,12 @@ int main(int argc, char* argv[]) {
 		i++;
 	}
 	free(cell);
+	TTF_CloseFont(font);
+	SDL_DestroyTexture(bufferTexture);
+	SDL_DestroyTexture(bufferTexture2);
     SDL_DestroyRenderer(renderer);
-	//SDL_DestroyTexture(bufferTexture);
-	//SDL_DestroyTexture(bufferTexture2);
     SDL_DestroyWindow(window);
+	TTF_Quit();
     SDL_Quit();
 
     return 0;
