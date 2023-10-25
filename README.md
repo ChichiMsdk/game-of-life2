@@ -8,3 +8,6 @@ Cycles are immediate and paused upon clicking
 * Press **`right click`** to **`remove`** the square, **maintain** and move mouse to remove **multiple**
 * Press **`space`** to toggle **`pause`**
 * **`ESC`** to **`quit`**
+
+# Example
+![life](https://github.com/ChichiMsdk/game-of-life2/assets/111235918/3aa50752-9769-4847-86af-a8da3755bbb7)
