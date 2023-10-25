@@ -211,7 +211,8 @@ int main(int argc, char* argv[]) {
     SDL_Event e;
 	int x = 0;
 	int y = 0;
-	int DELAY = 100;
+	int tmp = 300;
+	int DELAY = 300;
 	int w = CELLWIDTH;
 	int h = CELLHEIGHT;
 	static int x_rect;
@@ -256,19 +257,21 @@ int main(int argc, char* argv[]) {
                 quit = 1;
 			if (e.type == SDL_MOUSEWHEEL)
 			{
-				if (e.wheel.y > 0)
+				if (e.wheel.y < 0)
 				{
 					if (DELAY >= 1500)
 						break;
 					else
 						DELAY += 10;
+					tmp = DELAY;
 				}
-				else if (e.wheel.y < 0)
+				else if (e.wheel.y > 0)
 				{
 					if (DELAY <= 0)
 						break;
 					else
 						DELAY -= 10;
+					tmp = DELAY;
 				}
 			}
 			if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -278,11 +281,13 @@ int main(int argc, char* argv[]) {
 					//spawnRect(renderer, x, y, w, h);
 					//colorClick(renderer, x, y, w, h, cell);
 					buttons = 1;
+					tmp = DELAY;
 				}
 				if (e.button.button == SDL_BUTTON_RIGHT)
 				{
 				//	nocolorClick(renderer, x, y, w, h, cell);
 					button = 1;
+					tmp = DELAY;
 				}
 			}
 			if ( e.type == SDL_MOUSEBUTTONUP)
@@ -290,16 +295,19 @@ int main(int argc, char* argv[]) {
 				if ( e.button.button == SDL_BUTTON_LEFT)
 				{
 					buttons = 0;
+					DELAY = tmp;
 				}
 				if ( e.button.button == SDL_BUTTON_RIGHT)
 				{
 					button = 0;
+					DELAY = tmp;
 				}
 			}
         }
 		//if (buttons & SDL_BUTTON(SDL_BUTTON_LEFT) && currentTime - lastTime >= 100)
 		if ( buttons == 1 )
 		{
+			tmp = DELAY;
 			DELAY = 10;
 			mousePos(&x, &y);
 			colorClick(renderer, x, y, w, h, cell);
@@ -307,7 +315,8 @@ int main(int argc, char* argv[]) {
 		}
 		//if (buttons & SDL_BUTTON(SDL_BUTTON_RIGHT) && currentTime - lastTime >= 100)
 		if ( button == 1 )
-		{	
+		{
+			tmp = DELAY;
 			DELAY = 10;
 			mousePos(&x, &y);
 			nocolorClick(renderer, x, y, w, h, cell);
@@ -317,6 +326,7 @@ int main(int argc, char* argv[]) {
 		{
 			living(renderer, cell, bufferTexture, bufferTexture2);
 		}
+		DELAY = tmp;
 		SDL_RenderPresent(renderer);
 		SDL_Delay(DELAY);
 	}
