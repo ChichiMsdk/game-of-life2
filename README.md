@@ -10,7 +10,8 @@ Cycles are immediate and paused upon clicking
 * **`ESC`** to **`quit`**
 * **`ARROW UP`** to zoom
 * **`ARROW DOWN`** to unzoom
-* **`r`** to reset
+* **`f`** to reset zoom
+* **`r`** to reset cells states
 
 # Example
 ![life](https://github.com/ChichiMsdk/game-of-life2/assets/111235918/3aa50752-9769-4847-86af-a8da3755bbb7)
