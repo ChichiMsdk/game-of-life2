@@ -17,6 +17,10 @@
 extern Uint32 DELAY;
 extern Uint32 CELLWIDTH; 
 extern Uint32 CELLHEIGHT;
+extern Uint32 L_MOVE;
+extern Uint32 R_MOVE;
+extern Uint32 U_MOVE;
+extern Uint32 D_MOVE;
 
 enum colors
 {

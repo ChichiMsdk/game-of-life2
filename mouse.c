@@ -16,7 +16,8 @@ void	nocolorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **c
 	cell[i_x][i_y].score = 0;
 	cell[i_x][i_y].color = WHITE;
 	//printf("alive = %d\n", cell[i_x][i_y].alive);
-	voidRect(renderer, cell[i_x][i_y].x*CELLWIDTH, cell[i_x][i_y].y*CELLHEIGHT);
+	//voidRect(renderer, cell[i_x][i_y].x*CELLWIDTH, cell[i_x][i_y].y*CELLHEIGHT);
+	voidRect(renderer, i_x*CELLWIDTH, i_y*CELLHEIGHT);
 }
 // convert coordinates to cell coordinates
 void	colorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **cell)
@@ -37,7 +38,8 @@ void	colorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **cel
 	cell[i_x][i_y].color = BLACK;
 	//printf("alive = %d\n", cell[i_x][i_y].alive);
 	//printf("x = %d, y = %d, .x = %d, .y = %d\n", x, y, cell[x][y].x, cell[x][y].y);
-	fillRect(renderer, cell[i_x][i_y].x*CELLWIDTH, cell[i_x][i_y].y*CELLHEIGHT);
+	//fillRect(renderer, cell[i_x][i_y].x*CELLWIDTH, cell[i_x][i_y].y*CELLHEIGHT);
+	fillRect(renderer, i_x*CELLWIDTH, i_y*CELLHEIGHT);
 }
 
 void	spawnRect(SDL_Renderer *renderer, int x, int y, int w,int h)

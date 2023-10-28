@@ -36,6 +36,10 @@ void	bouge(SDL_Rect *rect,int x,int y, int X_offset, int Y_offset)
 Uint32 DELAY = 512;
 Uint32 CELLWIDTH = (WINDOW_WIDTH / NUM_CELLS_HORIZONTAL);
 Uint32 CELLHEIGHT = (WINDOW_HEIGHT / NUM_CELLS_VERTICAL);
+Uint32 L_MOVE = 0;
+Uint32 R_MOVE = 0;
+Uint32 U_MOVE = 0;
+Uint32 D_MOVE = 0;
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
@@ -118,20 +122,8 @@ int main(int argc, char* argv[]) {
 	Uint32 	startTime = 0;
 	Uint32	displayTime = 3000000;
 	mousePos(&x, &y);
- 	x =0;
-	while(x < NUM_CELLS_HORIZONTAL)
-	{
-		y = 0;
-		while (y < NUM_CELLS_VERTICAL)
-		{
-			if (cell[x][y].alive == 1)
-				fillRect(renderer, cell[x][y].x*CELLWIDTH, cell[x][y].y*CELLHEIGHT);
-			else
-				voidRect(renderer, cell[x][y].x*CELLWIDTH, cell[x][y].y*CELLHEIGHT);
-			y++;
-		}
-		x++;
-	}
+
+ 	x = 0;
 	int hit1 = 0;
 	int hit2 = 0;
     SDL_Texture *image1 = IMG_LoadTexture(renderer, "image6.png");
@@ -233,7 +225,7 @@ int main(int argc, char* argv[]) {
 					//spawnRect(renderer, x, y, w, h);
 					mousePos(&x, &y);
 					tmp = DELAY;
-					colorClick(renderer, x, y, w, h, cell);
+					colorClick(renderer, x, y, CELLWIDTH, CELLHEIGHT, cell);
 					printf("down\n");
 				//	if ( x >= rect2.x && x<= rect2.x + rect2.w  && y >= rect2.y && y <= rect2.y + rect2.h)
 				//	{
@@ -261,7 +253,7 @@ int main(int argc, char* argv[]) {
 				}
 				if (e.button.button == SDL_BUTTON_RIGHT)
 				{
-					nocolorClick(renderer, x, y, w, h, cell);
+					colorClick(renderer, x, y, CELLWIDTH, CELLHEIGHT, cell);
 					button = 1;
 				}
 			}
@@ -294,11 +286,10 @@ int main(int argc, char* argv[]) {
 		}
 		if ( buttons == 1)
 		{
-zoom:
 			DELAY = 1;
 			mousePos(&x, &y);
 			SDL_SetRenderTarget(renderer, bufferTexture);
-			colorClick(renderer, x, y, w, h, cell);
+			colorClick(renderer, x, y, CELLWIDTH, CELLHEIGHT, cell);
 			SDL_SetRenderTarget(renderer, bufferTexture2);
 			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
 			SDL_SetRenderTarget(renderer, NULL);
@@ -319,7 +310,7 @@ zoom:
 			DELAY = 1;
 			mousePos(&x, &y);
 			SDL_SetRenderTarget(renderer, bufferTexture);
-			nocolorClick(renderer, x, y, w, h, cell);
+			nocolorClick(renderer, x, y, CELLWIDTH, CELLHEIGHT, cell);
 			SDL_SetRenderTarget(renderer, bufferTexture2);
 			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
 			SDL_SetRenderTarget(renderer, NULL);
@@ -331,6 +322,7 @@ zoom:
 		{
 		lastUpdatedTime = currentTime;
 		DELAY = tmp;
+zoom:
 		SDL_SetRenderTarget(renderer, bufferTexture);
 		living(renderer, cell, lastUpdatedTime, currentTime);
 		SDL_SetRenderTarget(renderer, bufferTexture2);
