@@ -143,6 +143,7 @@ int main(int argc, char* argv[]) {
 	Uint32	counter = DELAY;
 	int X_offset = y;
 	int Y_offset = x;
+	int resetting = 0;
 	drawGrid(renderer, cell, bufferTexture, bufferTexture2);
 	lastUpdatedTime = SDL_GetTicks64() + 100;
 
@@ -156,9 +157,9 @@ int main(int argc, char* argv[]) {
 			{
 				if (e.key.keysym.sym == SDLK_UP) 
 				{
-					CELLWIDTH *= 1.2;
-					CELLHEIGHT *= 1.2;
-					if (CELLWIDTH >= 900 || CELLHEIGHT >=900)
+					CELLWIDTH += 1;
+					CELLHEIGHT += 1;
+					if (CELLWIDTH > 890 || CELLHEIGHT >890)
 					{
 						CELLWIDTH = 10;
 						CELLHEIGHT = 10;
@@ -168,15 +169,28 @@ int main(int argc, char* argv[]) {
 				}
 				if (e.key.keysym.sym == SDLK_DOWN) 
 				{
-					CELLWIDTH /= 1.2;
-					CELLHEIGHT /= 1.2;
-					if (CELLWIDTH <= 10 || CELLHEIGHT <= 10)
+					CELLWIDTH -= 1;
+					CELLHEIGHT -= 1;
+					if (CELLWIDTH < 10 || CELLHEIGHT < 10)
 					{
-						CELLWIDTH = 772;
-						CELLHEIGHT = 772;
+						CELLWIDTH = 890;
+						CELLHEIGHT = 890;
 					}
 					printf("CELLWIDTH = %d, CELLHEIGHT = %d\n", CELLWIDTH, CELLHEIGHT);
 					goto zoom;
+				}
+				if (e.key.keysym.sym == SDLK_f) 
+				{
+					CELLWIDTH = 10;
+					CELLHEIGHT = 10;
+					goto zoom;
+				}
+				if ( e.key.keysym.sym == SDLK_r)
+				{
+					reset(renderer, cell, bufferTexture, bufferTexture2);
+					resetting = 1;
+					isPaused = 0;
+					printf("reset\n");
 				}
 
 				if (e.key.keysym.sym == SDLK_ESCAPE) 
@@ -273,8 +287,11 @@ int main(int argc, char* argv[]) {
 			}
         }
 		mousePos(&x, &y);
-		SDL_SetRenderTarget(renderer, NULL);
-		SDL_RenderCopy(renderer, bufferTexture2, NULL, NULL);
+		if (resetting == 0)
+		{
+			SDL_SetRenderTarget(renderer, NULL);
+			SDL_RenderCopy(renderer, bufferTexture2, NULL, NULL);
+		}
 		if ( buttons == 1)
 		{
 zoom:
@@ -323,7 +340,6 @@ zoom:
 		//living(renderer, cell, bufferTexture, bufferTexture2);
 		}
 	}
-resize:
     	drawGrid(renderer, cell, bufferTexture2, bufferTexture2);
 		counter = mapDelayToScale(DELAY);
 		SDL_Texture *texture = fonting(renderer, font, Fontrect, str, counter); 
@@ -336,6 +352,7 @@ resize:
 		SDL_RenderPresent(renderer);
 		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 255);
 		SDL_RenderClear(renderer);
+		resetting = 0;
 	}
 
 	i = 0;
@@ -388,4 +405,31 @@ Uint32 mapScaleToDelay(int scale_position)
     }
 
     return delay;
+}
+
+void	reset(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2)
+{
+	SDL_Rect Fontrect;
+
+	int i = 0;
+	int j = 0;
+	SDL_SetRenderTarget(renderer, bufferTexture2);
+	while (i < NUM_CELLS_HORIZONTAL)
+	{
+		j = 0;
+		while (j < NUM_CELLS_VERTICAL)
+		{
+			cell[i][j].alive = 0;
+			cell[i][j].aliveNext = 0;
+			cell[i][j].color = WHITE;
+			cell[i][j].colorNext = WHITE;
+			cell[i][j].score = 0;
+			cell[i][j].scoreNext = 0;
+			j++;
+			voidRect(renderer, cell[i][j].x*CELLWIDTH, cell[i][j].y*CELLHEIGHT);
+		}
+		i++;
+	}
+	SDL_SetRenderTarget(renderer, NULL);
+	SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
 }

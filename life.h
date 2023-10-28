@@ -56,3 +56,4 @@ int			isMoving(int x, int y, int oldx, int oldy);
 void		DrawCell(SDL_Renderer *renderer,s_cell **cell,int x,int y);
 Uint32 mapScaleToDelay(int scale_position) ;
 int mapDelayToScale(Uint32 delay);
+void	reset(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2);
