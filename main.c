@@ -1,208 +1,70 @@
 #include "SDL/include/SDL2/SDL_stdinc.h"
 #include "life.h"
 
-void voidRect(SDL_Renderer *renderer, int x, int y)
-{
-	SDL_Rect rect;
-	rect.x = x+1;
-	rect.y = y+1;
-	rect.w = CELLWIDTH-1;
-	rect.h = CELLHEIGHT-1;
 
-//	SDL_SetRenderDrawColor(renderer, 0, 198, 0, 255);
-	SDL_SetRenderDrawColor(renderer, 160, 160, 160, 255);
-	SDL_RenderFillRect(renderer, &rect);
+int	isMoving(int x, int y, int oldx, int oldy)
+{
+	if (x == oldx && y == oldy)
+		return (0);
+	printf("moved\n");
+	return (1);
 }
 
-void	fillRect(SDL_Renderer *renderer, int x, int y)
+void	bouge(SDL_Rect *rect,int x,int y, int X_offset, int Y_offset)
 {
-	SDL_Rect rect;
-	rect.x = x+1;
-	rect.y = y+1;
-	rect.w = CELLWIDTH-1;
-	rect.h = CELLHEIGHT-1;
-
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderFillRect(renderer, &rect);
-}
-
-int neighbours(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2)
-{
-	SDL_SetRenderTarget(renderer, bufferTexture2);
-	SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
-	int score = 0;
-
-	if (!cell)
-		exit (1);
-	int x = 0;
-	int y = 0;
-	while (x < NUM_CELLS_HORIZONTAL)
-	{
-		y = 0;
-		score = 0;
-		while ( y < NUM_CELLS_VERTICAL)
+	rect->x = x - X_offset;
+	rect->y = y - Y_offset;
+	if ( rect->x > 1900 || rect->x + rect->w > 1900)
 		{
-			if (x - 1 >= 0 && cell[x - 1][y].alive == 1) // WEST
-			{
-				score++;
-				//printf("1\n");
-			}
-			if (x + 1 < NUM_CELLS_HORIZONTAL && cell[x + 1][y].alive == 1) // EAST
-			{
-				score++;
-				//printf("2\n");
-			}
-			if (y - 1 >= 0 && cell[x][y - 1].alive == 1) // NORTH
-			{
-				score++;
-				//printf("3\n");
-			}
-			if (y + 1 < NUM_CELLS_VERTICAL && cell[x][y + 1].alive == 1) // SOUTH
-			{
-				score++;
-				//printf("4\n");
-			}
-			if (x - 1 >= 0 && y - 1 >= 0 && cell[x - 1][y - 1].alive == 1) // NORTH WEST
-			{
-				score++;
-				//printf("5\n");
-			}
-			if (x + 1 < NUM_CELLS_HORIZONTAL && y - 1 >= 0 && cell[x + 1][y - 1].alive == 1) // NORTH EAST
-			{
-				score++;
-				//printf("6\n");
-			}
-			if (x - 1 >= 0 && y + 1 < NUM_CELLS_VERTICAL && cell[x - 1][y + 1].alive == 1) // SOUTH WEST
-			{
-				score++;
-				//printf("7\n");
-			}
-			if (x + 1 < NUM_CELLS_HORIZONTAL && y + 1 < NUM_CELLS_VERTICAL && cell[x + 1][y + 1].alive == 1) // SOUTH EAST
-			{
-				score++;
-				//printf("8\n");
-			}
-			static int continuing;
-			cell[x][y].scoreNext = score;
-			score = 0;
-	
-			if ((cell[x][y].score == 2 || cell[x][y].score == 3) && cell[x][y].alive == 1)
-			{
-				fillRect(renderer, cell[x][y].x*CELLWIDTH, cell[x][y].y*CELLHEIGHT);
-				cell[x][y].colorNext = BLACK;
-				cell[x][y].aliveNext = 1;
-			}
-			else if ( cell[x][y].score == 3 && cell[x][y].alive == 0)
-			{
-				fillRect(renderer, cell[x][y].x*CELLWIDTH, cell[x][y].y*CELLHEIGHT);
-				cell[x][y].colorNext = BLACK;
-				cell[x][y].aliveNext = 1;
-			}
-			else
-			{
-				voidRect(renderer, cell[x][y].x*CELLWIDTH, cell[x][y].y*CELLHEIGHT);
-				cell[x][y].colorNext = WHITE;
-				cell[x][y].aliveNext = 0;
-			}
-			y++;
+			rect->x = 1900 - rect->w;
 		}
-		x++;
-	}
-	x = 0;
-	y = 0;
-	while (x < NUM_CELLS_HORIZONTAL)
-	{
-		y = 0;
-		while (y < NUM_CELLS_VERTICAL)
+		if (rect->x <=0 )
 		{
-			cell[x][y].alive = cell[x][y].aliveNext;
-			cell[x][y].color = cell[x][y].colorNext;
-			cell[x][y].score = cell[x][y].scoreNext;
-			y++;
+			rect->x = 0;
 		}
-		x++;
-	}
-	SDL_SetRenderTarget(renderer, NULL);
-	SDL_RenderCopy(renderer, bufferTexture2, NULL, NULL);
-    drawGrid(renderer, cell, bufferTexture2, bufferTexture2);
-	return (score);
+		if (rect->y <= 0 )
+		{
+			rect->y = 0;
+		}
+		if ( rect->y > 1000 || rect->y + rect->h > 1000)
+		{
+			rect->y = 1000 - rect->h;
+		}
+
 }
 
-int living(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2)
-{
-	if (!cell)
-		exit (1);
-	SDL_SetRenderTarget(renderer, bufferTexture);
-	neighbours(renderer, cell, bufferTexture, bufferTexture2);
-	return (0);
-}
-
-void drawBG(SDL_Renderer *renderer, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2)
-{
-	//SDL_SetRenderDrawColor(renderer,160, 160, 160, 255);
-	SDL_SetRenderDrawColor(renderer, 198, 198, 198, 255);
-	SDL_RenderClear(renderer);
-}
-
-void drawGrid(SDL_Renderer *renderer, s_cell **cell, SDL_Texture *bufferTexture, SDL_Texture *bufferTexture2) 
-{
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	int i = 0;
-    while ( i <= NUM_CELLS_HORIZONTAL) 
-	{
-        int x = i * CELLWIDTH;
-        if (SDL_RenderDrawLine(renderer, x, 0, x, WINDOW_HEIGHT)< 0)
-			exit(1);
-		i++;
-    }
-
-	int j = 0;
-    while ( j <= NUM_CELLS_VERTICAL)
-	{
-        int y = j * CELLHEIGHT;
-        if (SDL_RenderDrawLine(renderer, 0, y, WINDOW_WIDTH, y) < 0)
-			exit(1);
-		j++;
-    }
-}
-
-SDL_Texture	*fonting(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect Fontrect, char *str, int DELAY)
-{
-	SDL_itoa(DELAY, str, 10);
-	SDL_Color textColor = {255, 0, 0, 0};
-	SDL_Surface *surface = TTF_RenderText_Solid(font, str, textColor);
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-	Fontrect.w = surface->w;
-	Fontrect.h = surface->h;
-	SDL_FreeSurface(surface);
-	return(texture);
-	//SDL_RenderPresent(renderer);
-}
+Uint32 DELAY = 512;
+Uint32 CELLWIDTH = (WINDOW_WIDTH / NUM_CELLS_HORIZONTAL);
+Uint32 CELLHEIGHT = (WINDOW_HEIGHT / NUM_CELLS_VERTICAL);
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
 	if (TTF_Init() < 0)
 		exit(1);
-	int tmp = 300;
-	int DELAY = 300;
+    (void)argc;
+    (void)argv;
+
+	
+	int RECT1_X = 100;
+	int RECT1_Y = 800;
+	int RECT2_X = 400;
+	int RECT2_Y = 10;
 	char str[4];
+	SDL_Color textColor = {255, 0, 0, 0};
+	SDL_Rect Fontrect;
+	Fontrect.x = 1800;
+	Fontrect.y = 30;
+	Fontrect.w = 100;
+	Fontrect.h = 100;
+	int troll = 1;
+
 	SDL_itoa(DELAY, str, 10);
     SDL_Window* window = SDL_CreateWindow("Grid Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	TTF_Font *font = TTF_OpenFont("JetBrainsMono-Bold.ttf", 24);
-	SDL_Color textColor = {255, 0, 0, 0};
-
-	SDL_Rect Fontrect;
-	Fontrect.x = 700;
-	Fontrect.y = 30;
-	Fontrect.w = 100;
-	Fontrect.h = 30;
-
 	if (!font)
 		exit(1);
-    (void)argc;
-    (void)argv;
 	s_cell **cell = malloc(sizeof(s_cell*) * NUM_CELLS_HORIZONTAL);
 	if (!cell)
 		exit(1);
@@ -236,6 +98,11 @@ int main(int argc, char* argv[]) {
 
 	SDL_Texture* bufferTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
 	SDL_Texture* bufferTexture2 = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WINDOW_WIDTH, WINDOW_HEIGHT);
+	SDL_SetRenderTarget(renderer, bufferTexture2);
+	SDL_SetRenderDrawColor(renderer, 160, 160, 160, 255);
+	SDL_RenderClear(renderer);
+	SDL_SetRenderTarget(renderer, NULL);
+
     int quit = 0;
     SDL_Event e;
 	int x = 0;
@@ -247,6 +114,7 @@ int main(int argc, char* argv[]) {
 	int buttons = 0;
 	int button = 0;
 	int isPaused = 0;
+	Uint32 currentTime, lastUpdatedTime;
 	Uint32 	startTime = 0;
 	Uint32	displayTime = 3000000;
 	mousePos(&x, &y);
@@ -264,13 +132,53 @@ int main(int argc, char* argv[]) {
 		}
 		x++;
 	}
+	int hit1 = 0;
+	int hit2 = 0;
+    SDL_Texture *image1 = IMG_LoadTexture(renderer, "image6.png");
+    SDL_Texture *image2 = IMG_LoadTexture(renderer, "image7.png");
+    SDL_Rect rect1 = { RECT1_X, RECT1_Y, 50, 50 };  // x, y, width, height
+    SDL_Rect rect2 = { RECT2_X, RECT2_Y, 657, 50 };  // x, y, width, height
+													 //
+	Uint32	tmp = DELAY;
+	Uint32	counter = DELAY;
+	int X_offset = y;
+	int Y_offset = x;
 	drawGrid(renderer, cell, bufferTexture, bufferTexture2);
+	lastUpdatedTime = SDL_GetTicks64() + 100;
+
     while (!quit)
 	{
+		currentTime = SDL_GetTicks64() + 100;
+		mousePos(&x, &y);
         while (SDL_PollEvent(&e)) 
 		{
 			if (e.type == SDL_KEYDOWN) 
 			{
+				if (e.key.keysym.sym == SDLK_UP) 
+				{
+					CELLWIDTH *= 1.2;
+					CELLHEIGHT *= 1.2;
+					if (CELLWIDTH >= 900 || CELLHEIGHT >=900)
+					{
+						CELLWIDTH = 10;
+						CELLHEIGHT = 10;
+					}
+					printf("CELLWIDTH = %d, CELLHEIGHT = %d\n", CELLWIDTH, CELLHEIGHT);
+					goto zoom;
+				}
+				if (e.key.keysym.sym == SDLK_DOWN) 
+				{
+					CELLWIDTH /= 1.2;
+					CELLHEIGHT /= 1.2;
+					if (CELLWIDTH <= 10 || CELLHEIGHT <= 10)
+					{
+						CELLWIDTH = 772;
+						CELLHEIGHT = 772;
+					}
+					printf("CELLWIDTH = %d, CELLHEIGHT = %d\n", CELLWIDTH, CELLHEIGHT);
+					goto zoom;
+				}
+
 				if (e.key.keysym.sym == SDLK_ESCAPE) 
 					quit = 1;
 				if (e.key.keysym.sym == SDLK_SPACE)
@@ -287,20 +195,20 @@ int main(int argc, char* argv[]) {
 			{	
 				if (e.wheel.y < 0)
 				{
-					if (DELAY >= 1500)
-						break;
-					else
-						DELAY += 10;
-					startTime = SDL_GetTicks();
+					DELAY *= 2;
+					if (DELAY >= 1000)
+					{
+						DELAY = 1000;
+					}
 					tmp = DELAY;
 				}
 				else if (e.wheel.y > 0)
 				{
+					DELAY /=2;
 					if (DELAY <= 0)
-						break;
-					else
-						DELAY -= 10;
-					startTime = SDL_GetTicks();
+					{
+						DELAY = 1;
+					}
 					tmp = DELAY;
 				}
 			}
@@ -309,60 +217,125 @@ int main(int argc, char* argv[]) {
 				if (e.button.button == SDL_BUTTON_LEFT)
 				{
 					//spawnRect(renderer, x, y, w, h);
-					//colorClick(renderer, x, y, w, h, cell);
-					buttons = 1;
+					mousePos(&x, &y);
 					tmp = DELAY;
+					colorClick(renderer, x, y, w, h, cell);
+					printf("down\n");
+				//	if ( x >= rect2.x && x<= rect2.x + rect2.w  && y >= rect2.y && y <= rect2.y + rect2.h)
+				//	{
+				//		mousePos(&x, &y);
+				//		X_offset = x - rect2.x;
+				//		Y_offset = y - rect2.y;
+				//		hit2 = 1;
+				//		rect2.x += 5;
+				//		rect2.y += 5;
+				//		rect2.w += 10;
+				//		rect2.h += 10;
+				//	}
+				//	if ( x >= rect1.x && x<= rect1.x + rect1.w  && y >= rect1.y && y <= rect1.y + rect1.h)
+				//	{
+				//		mousePos(&x, &y);
+				//		X_offset = x - rect1.x;
+				//		Y_offset = y - rect1.y;
+				//		hit1 = 1;
+				//		rect1.x += 5;
+				//		rect1.y += 5;
+				//		rect1.w += 10;
+				//		rect1.h += 10;
+				//	}
+					buttons = 1;
 				}
 				if (e.button.button == SDL_BUTTON_RIGHT)
 				{
-				//	nocolorClick(renderer, x, y, w, h, cell);
+					nocolorClick(renderer, x, y, w, h, cell);
 					button = 1;
-					tmp = DELAY;
 				}
 			}
 			if ( e.type == SDL_MOUSEBUTTONUP)
 			{
 				if ( e.button.button == SDL_BUTTON_LEFT)
 				{
+					mousePos(&x, &y);
+					printf("up\n");
 					buttons = 0;
 					DELAY = tmp;
+//					hit1 = 0;
+//					hit2 = 0;
+//					rect1.w = 50;
+//					rect1.h = 50;
+//					rect2.w = 657;
+//					rect2.h = 50;
 				}
 				if ( e.button.button == SDL_BUTTON_RIGHT)
 				{
 					button = 0;
-					DELAY = tmp;
 				}
 			}
         }
-		if ( buttons == 1 )
+		mousePos(&x, &y);
+		SDL_SetRenderTarget(renderer, NULL);
+		SDL_RenderCopy(renderer, bufferTexture2, NULL, NULL);
+		if ( buttons == 1)
 		{
-			DELAY = 0;
+zoom:
+			DELAY = 1;
 			mousePos(&x, &y);
+			SDL_SetRenderTarget(renderer, bufferTexture);
 			colorClick(renderer, x, y, w, h, cell);
-		//	printf("x = %d, y = %d\n", cell[x/w][y/h].x, cell[x/w][y/h].y);
+			SDL_SetRenderTarget(renderer, bufferTexture2);
+			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
+			SDL_SetRenderTarget(renderer, NULL);
+			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
+			
+//			if ( hit1 == 1)
+//			{
+//				bouge(&rect1, x, y, X_offset, Y_offset);
+//			}
+//			mousePos(&x, &y);
+//			if ( hit2 == 1)
+//			{
+//				bouge(&rect2, x, y, X_offset, Y_offset);
+//			}
 		}
 		if ( button == 1 )
 		{
-			DELAY = 0;
+			DELAY = 1;
 			mousePos(&x, &y);
+			SDL_SetRenderTarget(renderer, bufferTexture);
 			nocolorClick(renderer, x, y, w, h, cell);
-		//	printf("x = %d, y = %d\n", cell[x/w][y/h].x, cell[x/w][y/h].y);
+			SDL_SetRenderTarget(renderer, bufferTexture2);
+			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
+			SDL_SetRenderTarget(renderer, NULL);
+			SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
 		}
-		if (!buttons && button == 0 && isPaused == 0)
+	if (!buttons && button == 0 && isPaused == 0)
+	{
+		if (currentTime - lastUpdatedTime > DELAY)
 		{
-			DELAY = tmp;
-			living(renderer, cell, bufferTexture, bufferTexture2);
+		lastUpdatedTime = currentTime;
+		DELAY = tmp;
+		SDL_SetRenderTarget(renderer, bufferTexture);
+		living(renderer, cell, lastUpdatedTime, currentTime);
+		SDL_SetRenderTarget(renderer, bufferTexture2);
+		SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+		SDL_RenderCopy(renderer, bufferTexture, NULL, NULL);
+		//living(renderer, cell, bufferTexture, bufferTexture2);
 		}
-		if (DELAY!=0)
-		{
-			printf("DELAY = %d\n", DELAY);
-			SDL_Texture *texture = fonting(renderer, font, Fontrect, str, DELAY); 
-			SDL_RenderCopy(renderer, texture, NULL, &Fontrect);
-			SDL_RenderPresent(renderer);
-			SDL_DestroyTexture(texture);
-		}
+	}
+resize:
+    	drawGrid(renderer, cell, bufferTexture2, bufferTexture2);
+		counter = mapDelayToScale(DELAY);
+		SDL_Texture *texture = fonting(renderer, font, Fontrect, str, counter); 
+		SDL_RenderCopy(renderer, texture, NULL, &Fontrect);
+		SDL_RenderCopy(renderer, texture, NULL, &Fontrect);
+		SDL_DestroyTexture(texture);
+//    	SDL_RenderClear(renderer);
+//     	SDL_RenderCopy(renderer, image1, NULL, &rect1);
+//      SDL_RenderCopy(renderer, image2, NULL, &rect2);
 		SDL_RenderPresent(renderer);
-		SDL_Delay(DELAY);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 255);
+		SDL_RenderClear(renderer);
 	}
 
 	i = 0;
@@ -374,12 +347,45 @@ int main(int argc, char* argv[]) {
 	}
 	free(cell);
 	TTF_CloseFont(font);
+    SDL_DestroyTexture(image1);
+    SDL_DestroyTexture(image2);
 	SDL_DestroyTexture(bufferTexture);
 	SDL_DestroyTexture(bufferTexture2);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
 	TTF_Quit();
     SDL_Quit();
 
     return 0;
+}
+
+int mapDelayToScale(Uint32 delay)
+{
+    int scale_position = 0;
+
+    if (delay == 1000) {
+        scale_position = 1;
+    } else if (delay == 512) {
+        scale_position = 2;
+    } else {
+        scale_position = 3 + (int) (log2(512) - log2(delay));
+    }
+    
+    return scale_position;
+}
+
+Uint32 mapScaleToDelay(int scale_position) 
+{
+    Uint32 delay;
+
+    if (scale_position == 12) {
+        delay = 1000;
+    } else if (scale_position == 11) {
+        delay = 512;
+    } else {
+        delay = (Uint32) pow(2, log2(512) - (10 - scale_position));
+    }
+
+    return delay;
 }

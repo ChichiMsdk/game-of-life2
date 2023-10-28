@@ -1,7 +1,13 @@
 #include "life.h"
 
+// convert coordinates to cell coordinates
 void	nocolorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **cell)
 {
+	if ( x >= 1900 || y <= 0 || x <= 0 || y >= 1000)
+	{
+		printf("x = %d and y = %d are out of bound\n", x, y);
+		return;
+	}
 	int i_x;
 	int i_y;
 	i_x = x / w;
@@ -12,13 +18,20 @@ void	nocolorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **c
 	//printf("alive = %d\n", cell[i_x][i_y].alive);
 	voidRect(renderer, cell[i_x][i_y].x*CELLWIDTH, cell[i_x][i_y].y*CELLHEIGHT);
 }
-
+// convert coordinates to cell coordinates
 void	colorClick(SDL_Renderer *renderer, int x, int y, int w, int h, s_cell **cell)
 {
+	if ( x >= 1900 || y <= 0 || x <= 0 || y >= 1000)
+	{
+		printf("x = %d and y = %d are out of bound\n", x, y);
+		return;
+	}
 	int i_x;
 	int i_y;
 	i_x = x / w;
 	i_y = y / h;
+//	i_x = (int)((float)x / (w*1.2));
+//	i_y =(int)((float)y / (h*1.2));
 	cell[i_x][i_y].alive = 1;
 	cell[i_x][i_y].score = 2;
 	cell[i_x][i_y].color = BLACK;
